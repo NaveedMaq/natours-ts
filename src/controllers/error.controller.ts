@@ -41,6 +41,7 @@ function handleValidationErrorDb(err: any) {
 
 function handleValidationErrorRequest(err: YupValidationError) {
   const message = `Invalid input data. ${err.errors.join('. ')}`;
+
   return new AppError(message, 400);
 }
 
@@ -56,6 +57,8 @@ export function globalErrorHandler(
 ) {
   error.statusCode = error.statusCode || 500;
   error.status = error.status || 'error';
+
+  console.log({ error });
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(error, res);

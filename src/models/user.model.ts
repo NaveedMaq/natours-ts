@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import { Document, Model, Schema, model } from 'mongoose';
 import { isEmail } from 'validator';
 
-// extends Document
 export interface IUserLean {
   name: string;
   email: string;
@@ -11,6 +10,7 @@ export interface IUserLean {
   password: string;
   passwordConfirm?: string;
   passwordChangedAt: Date;
+  role: UserRoleEnum;
 }
 
 interface IUserMethods {
@@ -25,6 +25,13 @@ interface IUserMethods {
 export interface IUser extends Document, IUserLean, IUserMethods {}
 
 type UserModelType = Model<IUser, {}, IUserMethods>;
+
+export enum UserRoleEnum {
+  USER = 'user',
+  GUIDE = 'guide',
+  LEAD_GUIDE = 'lead-guide',
+  ADMIN = 'admin',
+}
 
 const userSchema = new Schema<IUser, UserModelType, IUserMethods>({
   name: {
@@ -41,6 +48,12 @@ const userSchema = new Schema<IUser, UserModelType, IUserMethods>({
   },
 
   photo: String,
+
+  role: {
+    type: String,
+    enum: Object.values(UserRoleEnum),
+    default: UserRoleEnum.USER,
+  },
 
   password: {
     type: String,

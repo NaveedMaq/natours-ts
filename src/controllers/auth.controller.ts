@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
 import { catchAsync } from '../utils/catch-async';
-import User, { IUser } from '../models/user.model';
+import User, { IUser, UserRoleEnum } from '../models/user.model';
 import { ICreateUserRequest } from '../validators/schemas/create-user.schema';
 import { ILoginUserRequest } from '../validators/schemas/login-user.schema';
 import { AppError } from '../utils/app-error';
@@ -67,12 +67,13 @@ class AuthController {
     async (req: Request, res: Response, next: NextFunction) => {
       // 1) Getting token and check if it exists
 
-      const authHeader = await string()
-        .required('')
-        .matches(/^Bearer/)
-        .validate(req.headers.authorization);
-
-      const token = authHeader.split(' ')[1];
+      let token: string | undefined = undefined;
+      if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+      ) {
+        token = req.headers.authorization.split(' ')[1];
+      }
 
       if (!token)
         return next(
@@ -107,6 +108,20 @@ class AuthController {
       next();
     },
   );
+
+  restrictTo = (...roles: UserRoleEnum[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+      if (!roles.includes(req.user.role)) {
+        return next(
+          new AppError(
+            'You do not have permission to perform this action',
+            403,
+          ),
+        );
+      }
+      next();
+    };
+  };
 }
 
 const authController = new AuthController();

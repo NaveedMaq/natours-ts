@@ -2,7 +2,7 @@ import express from 'express';
 
 import tourController from '../controllers/tour.controller';
 import authController from '../controllers/auth.controller';
-import { validateRequest } from '../validators/request-validator';
+import { UserRoleEnum } from '../models/user.model';
 
 const router = express.Router();
 
@@ -17,13 +17,19 @@ router.route('/monthly-plan/:year').get(tourController.getMonthyPlan);
 
 router
   .route('/')
-  .get([authController.protect], tourController.getAllTours)
+  .get(tourController.getAllTours)
   .post(tourController.createTour);
 
 router
   .route('/:id')
   .get(tourController.getTour)
   .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .delete(
+    [
+      authController.protect,
+      authController.restrictTo(UserRoleEnum.ADMIN, UserRoleEnum.LEAD_GUIDE),
+    ],
+    tourController.deleteTour,
+  );
 
 export const tourRouter = router;
