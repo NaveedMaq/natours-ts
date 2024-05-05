@@ -8,6 +8,7 @@ import { loginUserSchema } from '../validators/schemas/login-user.schema';
 import { forgotPasswordSchema } from '../validators/schemas/forgot-password.schema';
 import { resetPasswordSchema } from '../validators/schemas/reset-password.schema';
 import { updatePasswordSchema } from '../validators/schemas/update-password.schema';
+import { updateMeSchema } from '../validators/schemas/update-me.schema';
 
 export const router = express.Router();
 
@@ -36,6 +37,14 @@ router.patch(
   [authController.protect, validateRequest(updatePasswordSchema)],
   authController.updatePassword,
 );
+
+router.patch(
+  '/update-me',
+  [authController.protect, validateRequest(updateMeSchema)],
+  userController.updateMe,
+);
+
+router.delete('/update-me', [authController.protect], userController.deleteMe);
 
 router
   .route('/')

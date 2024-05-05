@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
-import { Document, Model, Schema, model } from 'mongoose';
+import { Document, Model, Query, Schema, model } from 'mongoose';
 import { isEmail } from 'validator';
 
 export interface IUserLean {
@@ -14,6 +14,7 @@ export interface IUserLean {
   role: UserRoleEnum;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
+  active?: boolean;
 }
 
 interface IUserMethods {
@@ -84,6 +85,12 @@ const userSchema = new Schema<IUser, UserModelType, IUserMethods>({
   passwordResetToken: String,
 
   passwordResetExpires: Date,
+
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.methods.correctPassword = async function (
@@ -131,6 +138,10 @@ userSchema.pre('save', function (this: IUser, next) {
   if (!this.isModified('password') || this.isNew) return next();
   this.passwordChangedAt = new Date(Date.now() - 1_000);
   next();
+});
+
+userSchema.pre(/^find/, function (this: Query<IUser, IUser>) {
+  this.find({ active: { $ne: false } });
 });
 
 const User = model<IUser, UserModelType>('User', userSchema);
