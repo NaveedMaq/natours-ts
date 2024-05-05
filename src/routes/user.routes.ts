@@ -5,6 +5,9 @@ import authController from '../controllers/auth.controller';
 import { validateRequest } from '../validators/request-validator';
 import { createUserSchema } from '../validators/schemas/create-user.schema';
 import { loginUserSchema } from '../validators/schemas/login-user.schema';
+import { forgotPasswordSchema } from '../validators/schemas/forgot-password.schema';
+import { resetPasswordSchema } from '../validators/schemas/reset-password.schema';
+import { updatePasswordSchema } from '../validators/schemas/update-password.schema';
 
 export const router = express.Router();
 
@@ -15,6 +18,24 @@ router.post(
 );
 
 router.post('/login', [validateRequest(loginUserSchema)], authController.login);
+
+router.post(
+  '/forgot-password',
+  [validateRequest(forgotPasswordSchema)],
+  authController.forgotPassword,
+);
+
+router.patch(
+  '/reset-password/:token',
+  [validateRequest(resetPasswordSchema)],
+  authController.resetPassword,
+);
+
+router.patch(
+  '/update-my-password',
+  [authController.protect, validateRequest(updatePasswordSchema)],
+  authController.updatePassword,
+);
 
 router
   .route('/')

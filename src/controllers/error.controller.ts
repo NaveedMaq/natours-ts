@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 const { ValidationError: MongooseValidationError, CastError } = mongoose.Error;
 
 import { AppError } from '../utils/app-error';
-import { cloneError } from '../utils/obj-utils';
+import { cloneError } from '../utils/obj.utils';
 import { JsonWebTokenError } from 'jsonwebtoken';
 
 type ProductionErrorType = {

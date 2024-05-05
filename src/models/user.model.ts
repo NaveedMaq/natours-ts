@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
 import { Document, Model, Schema, model } from 'mongoose';
@@ -11,6 +12,8 @@ export interface IUserLean {
   passwordConfirm?: string;
   passwordChangedAt: Date;
   role: UserRoleEnum;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
 }
 
 interface IUserMethods {
@@ -20,6 +23,8 @@ interface IUserMethods {
   ): Promise<boolean>;
 
   changedPasswordAfter(JWTTimestamp: number): boolean;
+
+  createPasswordResetToken(): void;
 }
 
 export interface IUser extends Document, IUserLean, IUserMethods {}
@@ -75,6 +80,10 @@ const userSchema = new Schema<IUser, UserModelType, IUserMethods>({
   },
 
   passwordChangedAt: Date,
+
+  passwordResetToken: String,
+
+  passwordResetExpires: Date,
 });
 
 userSchema.methods.correctPassword = async function (
@@ -97,11 +106,30 @@ userSchema.methods.changedPasswordAfter = function (
   return false;
 };
 
+userSchema.methods.createPasswordResetToken = function (this: IUser) {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+  return resetToken;
+};
+
 userSchema.pre('save', async function (this: IUser, next) {
   if (!this.isModified('password')) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.pre('save', function (this: IUser, next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = new Date(Date.now() - 1_000);
   next();
 });
 
