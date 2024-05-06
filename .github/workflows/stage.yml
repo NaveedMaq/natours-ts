@@ -19,5 +19,4 @@ jobs:
           script: |
             set -e
             cd /home/ubuntu/Staging/natours-ts
-            git pull origin dev
-            /home/ubuntu/.nvm/versions/node/v20.11.1/bin/npm install
+            ./pull.sh
