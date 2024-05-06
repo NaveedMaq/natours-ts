@@ -20,4 +20,5 @@ jobs:
             set -e
             # export PATH=/usr/local/bin:$PATH
             cd /home/ubuntu/Staging/natours-ts
-            bash ./pull.sh
+            bash 
+            sh ./pull.sh
