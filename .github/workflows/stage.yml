@@ -19,4 +19,5 @@ jobs:
           script: |
             set -e
             cd /home/ubuntu/Staging/natours-ts
-            sh pull.sh
+            git pull origin dev
+            npm install
