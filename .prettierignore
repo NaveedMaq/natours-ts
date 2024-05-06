@@ -30,5 +30,5 @@ jest.config.js
 webpack.config.js
 
 
-**/*.yml
-**/*.yaml
+# **/*.yml
+# **/*.yaml  
