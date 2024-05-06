@@ -18,5 +18,6 @@ jobs:
           port: ${{ secrets.SERVER_SSH_PORT }}
           script: |
             set -e
+            export PATH=/usr/local/bin:$PATH
             cd /home/ubuntu/Staging/natours-ts
             ./pull.sh
