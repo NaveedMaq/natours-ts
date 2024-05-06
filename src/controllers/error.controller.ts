@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { ValidationError as YupValidationError } from 'yup';
 import mongoose from 'mongoose';
+
 const { ValidationError: MongooseValidationError, CastError } = mongoose.Error;
 
 import { AppError } from '../utils/app-error';
@@ -49,6 +50,10 @@ function handleJWTError(_: JsonWebTokenError) {
   return new AppError('Invalid token. Please log in again!', 401);
 }
 
+function handleLargePayLoadError(err: any) {
+  return new AppError(err.message, err.statusCode);
+}
+
 export function globalErrorHandler(
   error: any,
   req: Request,
@@ -57,8 +62,6 @@ export function globalErrorHandler(
 ) {
   error.statusCode = error.statusCode || 500;
   error.status = error.status || 'error';
-
-  console.log({ error });
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(error, res);
@@ -105,6 +108,7 @@ function createProductionError(error: any): ProductionErrorType {
   if (error instanceof YupValidationError)
     err = handleValidationErrorRequest(err);
   if (error instanceof JsonWebTokenError) err = handleJWTError(err);
+  if (error.name === 'PayloadTooLargeError') err = handleLargePayLoadError(err);
 
   if (err.isOperational) {
     return {

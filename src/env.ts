@@ -15,6 +15,7 @@ const DATABASE_PASSWORD = getEnvironmentVariable('DATABASE_PASSWORD');
 
 const JWT_SECRET = getEnvironmentVariable('JWT_SECRET');
 const JWT_EXPIRES_IN = getEnvironmentVariable('JWT_EXPIRES_IN');
+const JWT_COOKIE_EXPIRES_IN = +getEnvironmentVariable('JWT_COOKIE_EXPIRES_IN');
 
 const EMAIL_USERNAME = getEnvironmentVariable('EMAIL_USERNAME');
 const EMAIL_PASSWORD = getEnvironmentVariable('EMAIL_PASSWORD');
@@ -28,6 +29,7 @@ export const env = {
   DATABASE_PASSWORD,
   JWT_SECRET,
   JWT_EXPIRES_IN,
+  JWT_COOKIE_EXPIRES_IN,
   EMAIL_USERNAME,
   EMAIL_PASSWORD,
   EMAIL_HOST,

@@ -34,11 +34,21 @@ const verifyToken = (token: string, secret: string) => {
 const createSendToken = (user: IUser, statusCode: number, res: Response) => {
   const token = signToken(user._id);
 
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1_000,
+    ),
+    secure: env.NODE_ENV === 'production',
+    httpOnly: true,
+  };
+
+  res.cookie('jwt', token, cookieOptions);
+
   res.status(statusCode).json({
     status: 'success',
     token,
     data: {
-      user,
+      user: { ...user.toObject(), password: undefined },
     },
   });
 };
@@ -54,6 +64,8 @@ class AuthController {
   login = catchAsync(
     async (req: ILoginUserRequest, res: Response, next: NextFunction) => {
       const { email, password } = req.body;
+
+      console.log(req.body);
 
       const user = await User.findOne({ email }).select('+password');
 
