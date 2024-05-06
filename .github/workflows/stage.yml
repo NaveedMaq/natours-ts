@@ -9,7 +9,7 @@ jobs:
   stage:
     runs-on: ubuntu-latest
     steps:
-      - name: Executing remote ssh commands using ssh key
+      - name: Pull Code and Restart
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -18,6 +18,14 @@ jobs:
           port: ${{ secrets.SERVER_SSH_PORT }}
           script: |
             set -e
-            # export PATH=/usr/local/bin:$PATH
+            echo 'Going into natours directory...'
             cd /home/ubuntu/Staging/natours-ts
-            ./pull.sh
+
+            echo 'Pulling code from dev branch...'
+            git pull origin dev
+
+            echo 'Installing dependencies...'
+            npm install
+
+            echo 'Restarting pm2 process...'
+            pm2 restart natours-ts
