@@ -26,6 +26,8 @@ if (env.NODE_ENV === 'development') {
 }
 // Limit requests from same api
 const limiter = rateLimit({
+  keyGenerator: (req: Request, _) =>
+    (req.headers['x-real-ip'] as string) || (req.ip as string),
   max: 100,
   windowMs: 1 * 60 * 60 * 1000, // 1 hour,
   message: {
